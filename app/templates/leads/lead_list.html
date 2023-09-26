@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% load humanize %}
+
+{% block head_title %}
+Leads
+{% endblock head_title %}
+
+{% block content %}
+
+<div class="mx-lg-5 m-2 p-5 shadow border rounded-4">
+    <div class="d-flex justify-content-start">
+        <h1>Lead</h1>
+        <a title="add lead"
+            class="text-dark"
+            href="{% url 'lead-create' %}">
+            <span class="material-symbols-outlined fs-1 mx-5">
+                add_circle
+            </span>
+        </a>
+    </div>
+    <hr>
+    <div class="table-responsive">
+        <table class="table table-sm small table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Budget</th>
+                    <th scope="col">Ref#</th>
+                    <th scope="col">Created</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for lead in object_list %}
+                <tr>
+                    <th scope="row">{{forloop.counter}}</th>
+                    <td>
+                        <a href="{{ lead.get_absolute_url }}">{{lead.name}}</a>
+                    </td>
+                    <td><a title="update status"
+                            class="text-dark"
+                            data-bs-toggle="modal"
+                            data-bs-target="#updateStatusModal{{lead.id}}"
+                            href="#">
+                            {{lead.status|upper}}
+                        </a></td>
+                    <td>{{lead.lead_type|upper}}</td>
+                    <td>XCD${{lead.budget|intcomma}}</td>
+                    <td>{{lead.ref_no|default:'N/A'}}</td>
+                    <td>{{lead.created|naturaltime}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+
+{% for lead in object_list %}
+
+<div class="modal fade"
+    id="updateStatusModal{{lead.id}}"
+    tabindex="-1"
+    aria-labelledby="updateStatusModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <form action="{% url 'lead-status-update' lead.pk %}"
+            method="post">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5"
+                        id="updateStatusModalLabel">Add lead</h1>
+                    <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {% csrf_token %}
+                    {{status_update_form|crispy}}
+                </div>
+                <div class="modal-footer">
+                    <button type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">Close</button>
+                    <button type="submit"
+                        class="btn btn-primary">Save changes</button>
+                </div>
+        </form>
+    </div>
+</div>
+{% endfor %}
+
+{% endblock content %}
